@@ -1,0 +1,213 @@
+console.log("Inicio Codesnippet Orden V2.8");
+/*Lista Bind to Function - TAGS DDX*/
+window.listarProdIterator = function() {}
+window.cargarOrderTag = function() {}
+window.imprimir_Boleto = function() {}
+window.functionLoad = function() {}
+window.dataLayerElement = function() {}
+/* Variables que ejecutan el intervalo 18 veces, cada 5 segundos */
+window.timeInterval     = 5;
+window.timeIntervalxV   = 18;
+window.categoryElement  = "Orden - Troubleshooting"
+/* Valida si el Page Identifier ORDEN se ejecuta en la url que contiene /orderPlaced */
+if (window.location.href.indexOf("orderPlaced") > -1) {
+    /* Evento de la carga del DOM */
+    $(document).ready(function() {
+        /* Inicializar contador de iteraciones */
+        var contInterval = 0;
+        var contIntervalxV = 1;
+        /* Inicializar Iterador */
+        window.setIntervalOrden = setInterval(function() {
+            /* Validacion si existe dataLayer.event: "orderPlaced" */
+            var validaPosicionTag = false;
+            var tableItems = $("table.order-detail-items").length;
+            var posicion = -1;
+            $.each(dataLayer, function(ind, elem) {
+                var texto = elem.event;
+                if (typeof(texto) != 'undefined') {
+                    //Eliminar una vez que se realicen las pruebas
+                    //if (texto.toString() == 'orderPlaced22') {
+                    if (texto.toString() == 'orderPlaced') {
+                        validaPosicionTag = true;
+                        posicion = parseInt(ind);
+                    }
+                }
+            });
+            /* Cumple condicion, Existe dataLayer.event: "orderPlaced" */
+            if (validaPosicionTag == true) {
+                /* Incremento de contador con el nro de iteracion */
+                contInterval++;
+                console.log("CONTADOR " + contInterval);
+                /* Registro de PAGEVIEW */
+                var title = $('title').text() + " | WONG";
+                var contentPage = new Array();
+                contentPage['pageId'] = title;
+                contentPage['primaryCategory'] = "orden";
+                contentPage['onsiteSearchTerm'] = null;
+                contentPage['onsiteSearchResults'] = null;
+                contentPage['exploreAttributes'] = null;
+                window.digitalData = new LideratisLibrary.PageView(contentPage);
+                window.functionLoad();
+                /* Creacion de Array que contiene la lista de productos adquiridos SHOPACTION9 */
+                LideratisLibrary.initShopAction9Content();
+                /* Recorrido de listado en dataLayer.event: "orderPlaced" => transactionProducts, ademas se adicionan al Array creado en la linea anterior */
+                for (var object in dataLayer[posicion].transactionProducts) {
+                    /* Declaracion de variables para almacenar datos de productos en SHOPACTION9*/
+                    var proList = [];
+                    var marca = dataLayer[posicion].transactionProducts[object].brand;
+                    var idprod = dataLayer[posicion].transactionProducts[object].sku;
+                    var proname = LideratisHelper.tempClearQuotationMarks(dataLayer[posicion].transactionProducts[object].name);
+                    var cant = dataLayer[posicion].transactionProducts[object].quantity;
+                    var precio = dataLayer[posicion].transactionProducts[object].price;
+                    var pryCat = dataLayer[posicion].transactionProducts[object].categoryId;
+                    /*Atributos
+                        Attr1:
+                        Attr2:
+                        Attr3:
+                        Attr4:
+                    */
+                    var attr = new Array();
+                    attr[1] = marca;
+                    attr[4] = LideratisHelper.tempNumberOfDecimal(precio, 2);
+                    proList["index"] = object;
+                    proList["productID"] = idprod;
+                    proList["productName"] = proname;
+                    proList["quantity"] = cant;
+                    proList["price"] = LideratisHelper.tempNumberOfDecimal(precio, 2);
+                    proList["primaryCategory"] = pryCat;
+                    proList["exploreAttributes"] = LideratisHelper.GetArrayAttributes(attr);
+                    //r.GetArrayAttributes(attr);
+                    LideratisLibrary.ShopAction9Content(proList);
+                };
+                /* Declaracion de variables para almacenar datos en ORDER*/
+                var medioPAgo = dataLayer[posicion].transactionPaymentType[0].paymentSystemName;
+                var tipoEnvio = dataLayer[posicion].transactionShippingMethod[0].selectedSla;
+                /*Atributos
+                        Attr1:
+                        Attr2:
+                */
+                var attr = new Array();
+                attr[1] = medioPAgo;
+                attr[2] = tipoEnvio;
+                /* Registro de ORDEN */
+                var ListaOrden = new Array();
+                ListaOrden["transactionID"] = dataLayer[posicion].transactionId;
+                ListaOrden["basePrice"] = LideratisHelper.tempNumberOfDecimal(dataLayer[posicion].transactionTotal, 2);
+                ListaOrden["shipping"] = LideratisHelper.tempNumberOfDecimal(dataLayer[posicion].transactionShipping, 2);
+                ListaOrden["city"] = "Ciudad - Temporal";
+                ListaOrden["state_province"] = "Provincia - Temporal";
+                ListaOrden["profileID"] = dataLayer[posicion].visitorContactInfo[0];
+                /* Adicion de productos SHOPACTION9 a ORDER */
+                ListaOrden["item"] = new LideratisLibrary.ShopAction9();
+                ListaOrden['exploreAttributes'] = LideratisHelper.GetArrayAttributes(attr);
+                var Order = LideratisLibrary.OrdenTag(ListaOrden);
+                window.digitalData.transaction = Order;
+                console.log(digitalData);
+                window.listarProdIterator();
+                window.cargarOrderTag();
+                /* Declaracion de variables para almacenar datos en ELEMENT OK*/
+                var elementId = 'Orderplaced datalayer creado exitosamente';
+                var elementURL = LideratisHelper.URL(3);
+                /*Atributos
+                        Attr30: Variable og(orden) en la URL
+                        Attr31: numero de iteracion en que se ejecuto el elemento
+                        Attr32: URL
+                */
+                var attr = new Array();
+                attr[30] = LideratisHelper.GetParameter('og');
+                attr[31] = contInterval;
+                attr[32] = elementURL;
+                /* Registro de ELEMENT OK */
+                var elementTrouble = new Array();
+                elementTrouble['componentID'] = elementId;
+                elementTrouble['primaryCategory'] = window.categoryElement;
+                elementTrouble['exploreAttributes'] = LideratisHelper.GetArrayAttributes(attr);
+                window.digitalData = LideratisLibrary.ElementTag(elementTrouble);
+                window.dataLayerElement();
+                console.log("Ejecucion de TAG ORDEN ");
+                /* Finaliza la tarea recurrente */
+                clearInterval(window.setIntervalOrden);
+            } else {
+                contInterval++;
+                /* Valida que se ejecute el codigo cada 5 seg y que contenga la imagen de tablas */
+                if (contInterval == window.timeInterval && tableItems > 0) {
+                    console.log("CONTADOR Cada 5seg: " + contInterval);
+                    /* Valida que se ejecute el codigo hasta 18 veces. 18*5 = 90 seg = 1.5 min */
+                    if(contIntervalxV <= window.timeIntervalxV){
+                        /* Declaracion de variables para almacenar datos en ELEMENT NOK*/
+                        var elementId = 'Orderplaced datalayer no creado después de '+(contInterval*contIntervalxV);
+                        var elementURL = LideratisHelper.URL(3);
+                        /*Atributos
+                                Attr30: Variable og(orden) en la URL
+                                Attr31: numero de iteracion en que se ejecuto el elemento
+                                Attr32: URL
+                        */
+                        var attr = new Array();
+                        attr[30] = LideratisHelper.GetParameter('og');
+                        attr[31] = contInterval*contIntervalxV;
+                        attr[32] = elementURL;
+                        /* Registro de ELEMENT NOK */
+                        var elementTrouble = new Array();
+                        elementTrouble['componentID'] = elementId;
+                        elementTrouble['primaryCategory'] = window.categoryElement;
+                        elementTrouble['exploreAttributes'] = LideratisHelper.GetArrayAttributes(attr);
+                        window.digitalData = LideratisLibrary.ElementTag(elementTrouble);
+                        window.dataLayerElement();
+                        console.log("Ejecucion de TAG ELEMENT Contador 30: "+contInterval);
+                        console.log("Ejecucion de TAG ELEMENT Contador Iter : "+contIntervalxV);
+                    }
+                    /* Seteo e incremento de variables de temporizacion */
+                    contInterval = 0;
+                    contIntervalxV++;
+                    console.log("/***********************************************************************************/");
+                    console.log("Ejecucion de FUERA DE IF ELEMENT Contador 30: "+contInterval);
+                    console.log("Ejecucion de FUERA DE IF ELEMENT Contador Iter : "+contIntervalxV);
+                    console.log("/***********************************************************************************/");
+                }
+            }
+        }, 1000);
+        //SET TIME OUT EN CASO DE QUE NO CARGUE EN DIEZ SEGUNDOS LA LISTA DE PRODUCTOS
+        setTimeout(function(){
+            var popup = $("#vtexIdContainer").length;
+            var title = "No cargan productos en página";
+            /* En el caso que se detecte un mensaje de Popup; */
+            if(popup>0){
+                title = $("#vtexIdContainer .vtexIdUI-page-active p").text();
+            }else{
+                title = $(".alert-error span").text()
+            }
+            title = LideratisHelper.ClearBlankSpaces(title);
+            title = "Pedido Error: "+title+"  | WONG";
+            var tableItems = $("table.order-detail-items").length;
+            if(tableItems == 0){
+                /* Registro de PAGEVIEW */
+                var contentPage = new Array();
+                contentPage['pageId'] = title;
+                contentPage['primaryCategory'] = "orden";
+                contentPage['onsiteSearchTerm'] = null;
+                contentPage['onsiteSearchResults'] = null;
+                contentPage['exploreAttributes'] = null;
+                window.digitalData = new LideratisLibrary.PageView(contentPage);
+                window.functionLoad();
+            }
+        //Variable de carga a consultar en Google Analytics
+      },5500);
+    });
+}else{
+    /* Declaracion de variables para almacenar datos en ELEMENT NO CONTIENE ORDERPLACED */
+    var elementId = 'URL no contiene OrderPlaced';
+    var elementURL = LideratisHelper.URL(3);
+    /*Atributos
+            Attr32: URL
+    */
+    var attr = new Array();
+    attr[30] = (LideratisHelper.GetParameter('og')!="")?LideratisHelper.GetParameter('og'):"";
+    attr[32] = elementURL;
+    /* Registro de ELEMENT NO CONTIENE ORDERPLACED */
+    var elementTrouble = new Array();
+    elementTrouble['componentID'] = verificacionData;
+    elementTrouble['primaryCategory'] = window.categoryElement;
+    elementTrouble['exploreAttributes'] = LideratisHelper.GetArrayAttributes(attr);
+    window.digitalData = LideratisLibrary.ElementTag(elementTrouble);
+    window.dataLayerElement();
+}

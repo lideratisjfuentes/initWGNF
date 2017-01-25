@@ -1,0 +1,340 @@
+console.log("Inicio Codesnippet Bolsa de compras");
+if (window.location.href.indexOf("orderPlaced") > -1) {
+} else {
+    window.flag = false;
+    window.identificador = digitalData.pageInstanceID;
+    window.agregarCarrito = function() {}
+    window.mostrarProducto = function() {}
+    window.listarProdIterator = function() {}
+    window.registrarCorreo = function() {}
+    window.functionLoad = function() {}
+    window.pageViewFunction = function(pageID, varl) {
+            var valor = varl;
+            var title = 'Bolsa de Compras | WONG';
+            var contentPage = new Array();
+            contentPage['pageId'] = pageID;
+            contentPage['primaryCategory'] = valor;
+            contentPage['onsiteSearchTerm'] = null;
+            contentPage['onsiteSearchResults'] = null;
+            contentPage['exploreAttributes'] = null;
+            window.digitalData = new LideratisLibrary.PageView(contentPage);
+            window.functionLoad();
+        }
+        //Segunda Function();
+    window.listaProductos = function(obj) {
+            var posicion = obj;
+            LideratisLibrary.initShopAction5Content();
+            $("body tr.product-item").each(function(e) {
+                var proList = [];
+                var ind = e;
+                var attr = new Array();
+                var marca = $(this).children('td.product-name').children('.brand').find('.brand-name').html();
+                var recom = '1';
+                var antpreRegu = LideratisHelper.tempPrice($(this).children('td.product-price').children('.list-price').find('.old-product-price').html());
+                var preRegu = (LideratisLibrary.isset(antpreRegu) ? antpreRegu : '0.00');
+                var idprod = $(this).attr("data-sku");
+                var proname = LideratisHelper.tempClearQuotationMarks($(this).children('td.product-name').find('a').html());
+                var cant = $(this).children('td.quantity').children('input').val();
+                var precio = LideratisHelper.tempPrice($(this).children('td.product-price').children('.best-price').find('.new-product-price').html());
+                var posicion_int = -1;
+                var detalleProductos = dataLayer[posicion].orderFormProducts;
+                var validaTypeof = typeof(dataLayer[posicion].orderFormProducts[e]);
+                if (validaTypeof == 'object') {
+                    var prycat = dataLayer[posicion].orderFormProducts[e].categoryId;
+                    //console.log(prycat);
+                } else {
+                    var prycat = 'flujo de compras';
+                    //console.log(prycat);
+                }
+                //var idprod = detalleProductoSeleccionado.sku;
+                //var proname = LideratisHelper.tempClearQuotationMarks(detalleProductoSeleccionado.name);
+                //var precio = detalleProductoSeleccionado.price +'.00';
+                //var precio = LideratisHelper.tempNumberOfDecimal(detalleProductoSeleccionado.price, '2')
+                /*Atributos*/
+                attr.push(marca);
+                attr.push('');
+                attr.push(preRegu);
+                attr.push(precio);
+                /*Fin Atributos*/
+                proList["index"] = ind;
+                proList["productID"] = idprod;
+                proList["productName"] = proname;
+                proList["quantity"] = cant;
+                proList["primaryCategory"] = prycat;
+                proList["price"] = precio;
+                // proList["primaryCategory"] = pryCat;
+                proList["exploreAttributes"] = attr.join('-_-');
+                LideratisLibrary.ShopAction5Content(proList);
+            });
+            window.digitalData.cart = {
+                'item': new LideratisLibrary.ShopAction5()
+            }
+            window.listarProdIterator();
+        }
+        //Termino de la Segunda Function;
+        //Primer registro Correo pre-Email
+    window.primerRegistro = function() {
+            $('div.client-email #btn-client-pre-email').click(function() {
+                var cantError = $('.error').length;
+                if (cantError == 0) {
+                    var contentRegistration = new Array();
+                    contentRegistration['profileID'] = $('#client-pre-email').val();
+                    contentRegistration['profileEmail'] = $('#client-pre-email').val();
+                    contentRegistration['country'] = 'Peru';
+                    digitalData = new LideratisLibrary.RegistrationTag(contentRegistration);
+                    window.registrarCorreo();
+                    //console.log(digitalData);
+                }
+            });
+        }
+        //termino del primer registro
+        //Segundo Registro Correo
+    window.segundoRegistro = function() {
+            $('#go-to-shipping').on('click', function() {
+                var cantError = $('.error').length;
+                if (cantError == 0) {
+                    var attr = new Array();
+                    var documento = $('#client-document').val();
+                    var nombre = $('#client-first-name').val();
+                    var apellido = $('#client-last-name').val();
+                    var distrito = '';
+                    var telefono = $('#client-phone').val();
+                    attr.push(documento);
+                    attr.push(nombre);
+                    attr.push(apellido);
+                    attr.push(distrito);
+                    attr.push(telefono);
+                    var contentRegistration = new Array();
+                    contentRegistration['profileID'] = $('#client-email').val();
+                    contentRegistration['profileEmail'] = $('#client-email').val();
+                    contentRegistration['country'] = 'Peru';
+                    contentRegistration['exploreAttributes'] = attr.join('-_-');
+                    digitalData = new LideratisLibrary.RegistrationTag(contentRegistration);
+                    window.registrarCorreo();
+                }
+            });
+        }
+        //Termino del segundo registro
+        //Tercer Registro Correo
+    window.tercerRegistro = function() {
+            //$('.btn-go-to-payment-wrapper button').on('click', function() {
+            $("#shipping-data button.btn-go-to-payment").on('click', function(e) {
+                e.preventDefault();
+                if ($('#ship-state').val() != '' && $('#ship-neighborhood').val() != '' && $('.scheduled-sla-value').html() != '') {
+                    //console.log("entro Validate.! Nuevo !!");
+                    var attr = new Array();
+                    var documento = $('#client-document').val();
+                    var nombre = $('#client-first-name').val();
+                    var apellido = $('#client-last-name').val();
+                    var distrito = $('#ship-state').val();
+                    var telefono = $('#client-phone').val();
+                    attr.push(documento);
+                    attr.push(nombre);
+                    attr.push(apellido);
+                    attr.push(distrito);
+                    attr.push(telefono);
+                    var contentRegistration = new Array();
+                    contentRegistration['profileID'] = $('#client-email').val();
+                    contentRegistration['profileEmail'] = $('#client-email').val();
+                    contentRegistration['city'] = $('#ship-city').val();
+                    contentRegistration['state_province'] = $('#ship-state').val();
+                    contentRegistration['country'] = 'Peru';
+                    contentRegistration['exploreAttributes'] = attr.join('-_-');
+                    digitalData = new LideratisLibrary.RegistrationTag(contentRegistration);
+                    window.registrarCorreo();
+                }
+            });
+        }
+        //Termino del Tercer Regitro
+    $(document).ready(function() {
+        setTimeout(function() {
+            window.flag = true;
+        }, 2000);
+        setTimeout(function() {
+            /*********************************SHOPACTION5***************************************/
+            var posicion = -1;
+            $.each(dataLayer, function(ind, elem) {
+                var texto = elem.event;
+                if (LideratisHelper.ValidateVariable('string', texto)) {
+                    if (texto.toString() == 'cart' || texto.toString() == 'cartLoaded') {
+                        posicion = parseInt(ind);
+                    }
+                };
+            });
+            if (window.location.href.indexOf("/#/cart") > -1) {
+                //console.log("posicion lideratis: " + posicion);
+                //Segunda Function();
+                var pageID = 'Bolsa de Compras | WONG';
+                var valor = "flujo de compras";
+                window.pageViewFunction(pageID, valor);
+                /*Funccion de lista de productos por click*/
+                window.listaProductos(posicion);
+                //console.log("ENTRO SETTIMEOUT");
+                //Termino de la segunda Function.
+                /*********************************SHOPACTION5***************************************/
+                /******************************CLICK** x ***SHOPACTION5******************************/
+                $('.item-link-remove').live('click', function() {
+                    window.listaProductos(posicion);
+                });
+                /******************************CLICK** + ó -  SHOPACTION5******************************/
+                $('.item-quantity-change').live('click', function() {
+                    window.listaProductos(posicion);
+                });
+                /******************************KeyUp** + ó -  SHOPACTION5******************************/
+                $('.quantity').find('input').live('keydown', function(e) {
+                    if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105)) {
+                        setTimeout(function() {
+                            window.listaProductos(posicion);
+                        }, 2500);
+                    }
+                });
+                /******************************KeyUp** + ó -  SHOPACTION5******************************/
+                /**********************************************************/
+            } else if (window.location.href.indexOf("/#/email") > -1) {
+                pageID = 'Registro de usuario | WONG'
+                valor = "flujo de compras";
+                window.pageViewFunction(pageID, valor);
+                window.primerRegistro();
+                //console.log("Email: " + window.flag);
+            } else if (window.location.href.indexOf("/#/shipping") > -1) {
+                pageID = 'Dirección de Envio | WONG'
+                valor = "flujo de compras";
+                window.pageViewFunction(pageID, valor);
+                window.tercerRegistro();
+                //console.log("Shipping: " + window.flag);
+            } else if (window.location.href.indexOf("/#/profile") > -1) {
+                pageID = 'Perfil de Usuario | WONG'
+                valor = "flujo de compras";
+                window.pageViewFunction(pageID, valor);
+                window.segundoRegistro();
+                //console.log("Profile: " + window.flag);
+            } else if (window.location.href.indexOf("/#/payment") > -1) {
+                pageID = 'Método de Pago | WONG'
+                valor = "flujo de compras";
+                window.pageViewFunction(pageID, valor);
+                //console.log("payment: " + window.flag);
+            }
+        }, 1000);
+        window.primerRegistro();
+        window.segundoRegistro();
+        window.tercerRegistro();
+    });
+    $(window).on('hashchange', function() {
+        var url = window.location.href;
+        window.valor = "";
+        //console.log("Cart: " + window.flag);
+        if (window.location.href.indexOf("/#/cart") > -1 && window.flag) {
+            pageID = 'Bolsa de Compras | WONG';
+            valor = "flujo de compras";
+            window.pageViewFunction(pageID, valor);
+            var posicion = -1;
+            $.each(dataLayer, function(ind, elem) {
+                var texto = elem.event;
+                if (LideratisHelper.ValidateVariable('string', texto)) {
+                    if (texto.toString() == 'cart' || texto.toString() == 'cartLoaded') {
+                        posicion = parseInt(ind);
+                    }
+                };
+            });
+            setTimeout(function() {
+                window.listaProductos(posicion);
+            }, 1200);
+            /******************************CLICK** x ***SHOPACTION5******************************/
+            $('.item-link-remove').live('click', function() {
+                window.listaProductos(posicion);
+            });
+            /******************************CLICK** + ó -  SHOPACTION5******************************/
+            $('.item-quantity-change').live('click', function() {
+                window.listaProductos(posicion);
+            });
+            /******************************KeyUp** + ó -  SHOPACTION5******************************/
+            $('.quantity').find('input').live('keydown', function(e) {
+                if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105)) {
+                    setTimeout(function() {
+                        window.listaProductos(posicion);
+                    }, 2500);
+                }
+            });
+            /******************************KeyUp** + ó -  SHOPACTION5******************************/
+            /**********************************************************/
+        } else if (window.location.href.indexOf("/#/email") > -1) {
+            pageID = 'Registro de usuario | WONG'
+            valor = "flujo de compras";
+            window.pageViewFunction(pageID, valor);
+            window.primerRegistro();
+            //console.log("Email: " + window.flag);
+        } else if (window.location.href.indexOf("/#/shipping") > -1) {
+            pageID = 'Dirección de Envio | WONG'
+            valor = "flujo de compras";
+            window.pageViewFunction(pageID, valor);
+            window.tercerRegistro();
+            //console.log("Shipping: " + window.flag);
+        } else if (window.location.href.indexOf("/#/profile") > -1) {
+            pageID = 'Perfil de Usuario | WONG'
+            valor = "flujo de compras";
+            window.pageViewFunction(pageID, valor);
+            window.segundoRegistro();
+            //console.log("Profile: " + window.flag);
+        } else if (window.location.href.indexOf("/#/payment") > -1) {
+            pageID = 'Método de Pago | WONG'
+            valor = "flujo de compras";
+            window.pageViewFunction(pageID, valor);
+            //console.log("payment: " + window.flag);
+        }
+    });
+}
+/*********************************SHOP ACTION5 CATEGORIAS**************************/
+window.eventsChaordicClick = function(products) {
+    var cantProd = products.length;
+    if (cantProd == 1) {
+        var producto = products[0];
+        var contentProduct = new Array();
+        var identifi = typeof producto.oldPrice;
+        var validaBrand = ((typeof(producto.details.brand) != 'undefined') ? producto.details.brand : producto.details.brandName);
+        window.attr = new Array();
+        /*Atributos*/
+        attr.push(validaBrand);
+        attr.push('');
+        attr.push(LideratisHelper.tempNumberOfDecimal(producto.oldPrice, 2));
+        attr.push(LideratisHelper.tempNumberOfDecimal(producto.price, 2));
+        /**/
+        //console.log(producto.oldPrice + '-'+ producto.price);
+        var verifica = (producto.price / producto.oldPrice) * 100;
+        //console.log(verifica);
+        var antPorcet = Math.round(verifica);
+        //console.log(antPorcet);
+        var porcent = (100 - antPorcet);
+        if (identifi != 'undefined') {
+            attr.push(porcent + '%');
+        }
+        /**/
+        /*Fin de Atributos*/
+        contentProduct['productID'] = producto.sku;
+        contentProduct['primaryCategory'] = ((identificador == 'inicio') ? 'informativo' : identificador);
+        contentProduct['productName'] = LideratisHelper.tempClearQuotationMarks(producto.name);
+        contentProduct['quantity'] = '1';
+        contentProduct['price'] = LideratisHelper.tempNumberOfDecimal(producto.price, 2);
+        contentProduct['exploreAttributes'] = LideratisHelper.tempAttributesJoin(attr, '-_-');
+        /*Product view*/
+        var productViewList = new Array();
+        var attrpro = new Array();
+        attrpro.push(validaBrand);
+        attrpro.push(LideratisHelper.tempNumberOfDecimal(producto.oldPrice, 2));
+        attrpro.push(LideratisHelper.tempNumberOfDecimal(producto.price, 2));
+        if (identifi != 'undefined') {
+            attrpro.push(porcent + '%');
+        }
+        //productViewList['productID'] = dataLayer[0].productId;
+        productViewList['productID'] = producto.sku;
+        productViewList['productName'] = LideratisHelper.tempClearQuotationMarks(producto.name);
+        productViewList['primaryCategory'] = ((identificador == 'inicio') ? 'informativo' : identificador);
+        productViewList['exploreAttributes'] = LideratisHelper.tempAttributesJoin(attrpro, '-_-');
+        productViewList['virtualCategory'] = producto.url.split('cm_vc=')[1];
+        contentProductView = new LideratisLibrary.ProductView(productViewList);
+        /*Fin Product View*/
+        window.digitalData = new LideratisLibrary.ShopAction5_BtnClick(contentProduct);
+        window.digitalData.product = [contentProductView.product[0]];
+        agregarCarrito();
+        mostrarProducto();
+    }
+}

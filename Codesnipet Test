@@ -1,0 +1,11 @@
+console.log("_______________________________________TEST HEAD_______________________________________");
+var contador=0;
+window.interval = setInterval(function(){
+	if(typeof dataLayer !== 'undefined') {
+		console.log(dataLayer);
+		clearInterval(window.interval);
+	}else{
+	    contador++;
+	    console.log("intento "+contador);
+	}	
+},1000);
